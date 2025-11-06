@@ -639,47 +639,68 @@
         }
 
         // Mettre à jour les filtres MODIFIÉE
-        function updateFilters() {
-            const agentFilter = document.getElementById('filterAgent');
-            const clientFilter = document.getElementById('filterClient');
-            const typeFilter = document.getElementById('filterType');
+function updateFilters() {
+    const agentFilter = document.getElementById('filterAgent');
+    const clientFilter = document.getElementById('filterClient');
+    const typeFilter = document.getElementById('filterType');
 
-            // Mettre à jour les agents
-            agentFilter.innerHTML = '<option value="">Tous les agents</option>';
-            agentsMap.forEach((name, id) => {
-                const option = new Option(name, id);
-                agentFilter.add(option);
-            });
-
-            // Mettre à jour les clients
-            const uniqueClients = [...new Set(allReports.map(r => r.clientName).filter(Boolean))];
-            clientFilter.innerHTML = '<option value="">Tous les clients</option>';
-            uniqueClients.sort().forEach(client => {
-                const option = new Option(client, client);
-                clientFilter.add(option);
-            });
-
-            // NOUVEAU: Mettre à jour les types
-            const allTypes = [];
-            allReports.forEach(report => {
-                if (report.type && typeof report.type === 'string') {
-                    if (report.type.includes(',')) {
-                        // Séparer les types multiples
-                        const types = report.type.split(',').map(t => t.trim());
-                        allTypes.push(...types);
-                    } else {
-                        allTypes.push(report.type);
-                    }
-                }
-            });
-            
-            const uniqueTypes = [...new Set(allTypes)].filter(Boolean).sort();
-            typeFilter.innerHTML = '<option value="">Tous les types</option>';
-            uniqueTypes.forEach(type => {
-                const option = new Option(type, type);
-                typeFilter.add(option);
-            });
+    // Mettre à jour les agents avec recherche améliorée
+    agentFilter.innerHTML = '<option value="">Tous les agents</option>';
+    
+    // Créer un Set des noms d'agents uniques
+    const uniqueAgents = new Set();
+    allReports.forEach(report => {
+        if (report.agentName && report.agentName !== 'Agent inconnu') {
+            uniqueAgents.add(report.agentName);
         }
+    });
+    
+    // Ajouter les agents au filtre
+    Array.from(uniqueAgents).sort().forEach(agentName => {
+        const option = new Option(agentName, agentName);
+        agentFilter.add(option);
+    });
+
+    // Mettre à jour les clients avec recherche améliorée
+    const uniqueClients = [...new Set(allReports.map(r => r.clientName).filter(name => name && name !== 'Client inconnu'))];
+    clientFilter.innerHTML = '<option value="">Tous les clients</option>';
+    uniqueClients.sort().forEach(client => {
+        const option = new Option(client, client);
+        clientFilter.add(option);
+    });
+
+    // Mettre à jour les types avec extraction améliorée
+    const allTypes = new Set();
+    allReports.forEach(report => {
+        if (report.type && typeof report.type === 'string') {
+            if (report.type.includes(',')) {
+                // Séparer les types multiples
+                const types = report.type.split(',').map(t => t.trim());
+                types.forEach(type => allTypes.add(type));
+            } else {
+                allTypes.add(report.type);
+            }
+        }
+    });
+    
+    typeFilter.innerHTML = '<option value="">Tous les types</option>';
+    Array.from(allTypes).filter(Boolean).sort().forEach(type => {
+        const option = new Option(type, type);
+        typeFilter.add(option);
+    });
+
+    // Mettre les dates par défaut (30 derniers jours)
+    const defaultEndDate = new Date().toISOString().split('T')[0];
+    const defaultStartDate = new Date();
+    defaultStartDate.setDate(defaultStartDate.getDate() - 30);
+    
+    if (!document.getElementById('filterDateStart').value) {
+        document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
+    }
+    if (!document.getElementById('filterDateEnd').value) {
+        document.getElementById('filterDateEnd').value = defaultEndDate;
+    }
+}
 
         // Afficher les rapports MODIFIÉE
         function displayReports() {
@@ -1253,52 +1274,98 @@
             printableDiv.classList.remove('hidden');
         }
 
-        // Fonctions globales MODIFIÉE
-        window.applyFilters = function() {
-            const agent = document.getElementById('filterAgent').value;
-            const client = document.getElementById('filterClient').value;
-            const type = document.getElementById('filterType').value;
-            const dateStart = document.getElementById('filterDateStart').value;
-            const dateEnd = document.getElementById('filterDateEnd').value;
+        // Fonction applyFilters MODIFIÉE et AMÉLIORÉE
+window.applyFilters = function() {
+    const agent = document.getElementById('filterAgent').value;
+    const client = document.getElementById('filterClient').value;
+    const type = document.getElementById('filterType').value;
+    const dateStart = document.getElementById('filterDateStart').value;
+    const dateEnd = document.getElementById('filterDateEnd').value;
+    
+    filteredReports = allReports.filter(report => {
+        // Filtre par agent (recherche par ID utilisateur ou nom)
+        let isAgentMatch = !agent;
+        if (agent) {
+            // Recherche par ID utilisateur
+            if (report.userId === agent) {
+                isAgentMatch = true;
+            } 
+            // Recherche par nom d'agent (fallback)
+            else if (report.agentName && report.agentName.toLowerCase().includes(agent.toLowerCase())) {
+                isAgentMatch = true;
+            }
+        }
+        
+        // Filtre par client (recherche textuelle)
+        let isClientMatch = !client;
+        if (client && report.clientName) {
+            isClientMatch = report.clientName.toLowerCase().includes(client.toLowerCase());
+        }
+        
+        // Filtre par type d'intervention (recherche dans les types multiples)
+        let isTypeMatch = !type;
+        if (type && report.type) {
+            const reportTypes = typeof report.type === 'string' 
+                ? report.type.split(',').map(t => t.trim().toLowerCase())
+                : [String(report.type).toLowerCase()];
             
-            filteredReports = allReports.filter(report => {
-                const isAgentMatch = !agent || report.userId === agent;
-                const isClientMatch = !client || report.clientName === client;
-                
-                // NOUVEAU: Filtre par type
-                let isTypeMatch = !type;
-                if (type && report.type) {
-                    if (typeof report.type === 'string') {
-                        if (report.type.includes(',')) {
-                            // Vérifier si le type recherché est dans la liste
-                            const types = report.type.split(',').map(t => t.trim());
-                            isTypeMatch = types.includes(type);
-                        } else {
-                            isTypeMatch = report.type === type;
-                        }
-                    }
-                }
-                
-                let isDateMatch = true;
-                if (dateStart && report.date < dateStart) isDateMatch = false;
-                if (dateEnd && report.date > dateEnd) isDateMatch = false;
-
-                return isAgentMatch && isClientMatch && isTypeMatch && isDateMatch;
-            });
-
-            displayReports();
-            updateStatistics();
-            updateCharts();
+            const searchType = type.toLowerCase();
+            isTypeMatch = reportTypes.some(t => t.includes(searchType));
         }
+        
+        // Filtre par date
+        let isDateMatch = true;
+        if (dateStart && report.date < dateStart) isDateMatch = false;
+        if (dateEnd && report.date > dateEnd) isDateMatch = false;
 
-        window.resetFilters = function() {
-            document.getElementById('filterAgent').value = '';
-            document.getElementById('filterClient').value = '';
-            document.getElementById('filterType').value = '';
-            document.getElementById('filterDateStart').value = '';
-            document.getElementById('filterDateEnd').value = '';
-            applyFilters();
-        }
+        return isAgentMatch && isClientMatch && isTypeMatch && isDateMatch;
+    });
+
+    displayReports();
+    updateStatistics();
+    updateCharts();
+}
+
+window.resetFilters = function() {
+    document.getElementById('filterAgent').value = '';
+    document.getElementById('filterClient').value = '';
+    document.getElementById('filterType').value = '';
+    
+    // Réinitialiser aux 30 derniers jours
+    const defaultEndDate = new Date().toISOString().split('T')[0];
+    const defaultStartDate = new Date();
+    defaultStartDate.setDate(defaultStartDate.getDate() - 30);
+    
+    document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
+    document.getElementById('filterDateEnd').value = defaultEndDate;
+    
+    applyFilters();
+}
+
+// Fonction de recherche avancée
+window.advancedSearch = function() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    if (!searchTerm) {
+        applyFilters();
+        return;
+    }
+    
+    filteredReports = allReports.filter(report => {
+        return (
+            (report.agentName && report.agentName.toLowerCase().includes(searchTerm)) ||
+            (report.clientName && report.clientName.toLowerCase().includes(searchTerm)) ||
+            (report.site && report.site.toLowerCase().includes(searchTerm)) ||
+            (report.type && report.type.toLowerCase().includes(searchTerm)) ||
+            (report.object && report.object.toLowerCase().includes(searchTerm)) ||
+            (report.interlocutor && report.interlocutor.toLowerCase().includes(searchTerm))
+        );
+    });
+    
+    displayReports();
+    updateStatistics();
+    updateCharts();
+}
 
         window.refreshData = async function() {
             showNotification('Actualisation des données...', 'info');
