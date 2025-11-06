@@ -249,23 +249,24 @@
                     <p class="text-xs text-gray-500">Interventions physiques</p>
                 </div>
             </div>
-        </div>
-
-         <!-- Interventions en ligne -->
+             <!-- Interventions en ligne -->
          <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center">
-                <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-map-marker-alt text-orange-600 text-xl"></i>
+                <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-laptop text-green-600 text-xl"></i>
                 </div>
                 <div>
                     <p class="text-gray-500 text-sm font-medium">En Ligne</p>
-                    <p class="text-2xl font-bold text-gray-800" id="onsiteInterventions">0</p>
+                    <p class="text-2xl font-bold text-gray-800" id="onlineInterventions">0</p>
                 </div>
             </div>
             <div class="mt-4 pt-4 border-t border-gray-100">
                 <p class="text-xs text-gray-500">Interventions en Ligne</p>
             </div>
         </div>
+        </div>
+
+        
     </div>
 
         <!-- Graphiques -->
@@ -790,6 +791,15 @@
                 report.type && (report.type === 'sur_site' || report.type.toLowerCase().includes('site'))
             ).length;
             document.getElementById('onsiteInterventions').textContent = onsiteCount;
+
+             // NOUVEAU: Interventions en ligne
+    const onlineCount = filteredReports.filter(report => {
+        if (!report.type) return false;
+        const type = report.type.toLowerCase();
+        return type.includes('en ligne') || type.includes('online') || type.includes('distanciel') || 
+               type.includes('remote') || type.includes('à distance') || type.includes('téléphonique');
+    }).length;
+    document.getElementById('onlineInterventions').textContent = onlineCount;
 
             updateFilterInfo();
         }
