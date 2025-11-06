@@ -152,19 +152,6 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
-                <!-- Dans responsable-dashboard.html -->
-<div class="flex items-center space-x-4">
-    <button onclick="showNotifications()" class="relative text-gray-600 hover:text-indigo-600 transition">
-        <i class="fas fa-bell text-xl"></i>
-        <span id="notificationBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            0
-        </span>
-    </button>
-    <span class="text-gray-600">Bonjour, <span id="userName" class="font-semibold"></span></span>
-    <button onclick="logout()" class="text-red-600 hover:text-red-800 transition">
-        <i class="fas fa-sign-out-alt"></i> Déconnexion
-    </button>
-</div>
             </div>
         </div>
     </nav>
@@ -1406,33 +1393,6 @@
                 }
             }, 5000);
         }
-        // Fonction pour compter les notifications non lues
-async function loadUnreadNotifications() {
-    try {
-        const q = query(
-            collection(db, 'notifications'),
-            where('recipientUid', '==', currentUser.uid),
-            where('isRead', '==', false)
-        );
-        
-        const querySnapshot = await getDocs(q);
-        const unreadCount = querySnapshot.size;
-        
-        // Mettre à jour le badge de notification
-        const notificationBadge = document.getElementById('notificationBadge');
-        if (notificationBadge) {
-            if (unreadCount > 0) {
-                notificationBadge.textContent = unreadCount;
-                notificationBadge.classList.remove('hidden');
-            } else {
-                notificationBadge.classList.add('hidden');
-            }
-        }
-        
-    } catch (error) {
-        console.error('Erreur chargement notifications:', error);
-    }
-}
 
         // Masquer le loading state quand la page est chargée
         document.addEventListener('DOMContentLoaded', function() {
