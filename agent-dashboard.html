@@ -55,6 +55,13 @@
             color: #6b7280;
             cursor: not-allowed;
         }
+        .info-bubble {
+            background-color: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -184,7 +191,23 @@
                         <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-user-tag text-blue-500 mr-3"></i>Information Client
                         </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Message d'information pour l'agent -->
+                        <div class="info-bubble">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-blue-700 font-medium">
+                                        Sélectionnez un client existant dans la liste
+                                    </p>
+                                    <p class="text-xs text-blue-600 mt-1">
+                                        Si le client n'existe pas, contactez votre responsable IT pour l'ajouter au système.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-6">
                             <div>
                                 <label for="reportClientSelect" class="block text-sm font-medium text-gray-700 mb-1">
                                     Raison Sociale (Client) *
@@ -193,20 +216,10 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                                     <option value="">Sélectionnez un client</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label for="reportNewClient" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Ou Ajouter Nouveau Client
-                                </label>
-                                <div class="flex space-x-2">
-                                    <input type="text" id="reportNewClient" placeholder="Nom complet du nouveau client"
-                                            class="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-150">
-                                    <button type="button" onclick="addNewClient()" id="addClientBtn"
-                                            class="p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-150 shadow-md flex items-center justify-center" 
-                                            title="Ajouter à la liste des clients">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Client manquant ? Contactez votre responsable IT
+                                </p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
@@ -232,6 +245,22 @@
                         <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-tools text-blue-500 mr-3"></i>Détails de la Mission
                         </h4>
+                        
+                        <!-- Message d'information pour l'agent -->
+                        <div class="info-bubble">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-blue-700 font-medium">
+                                        Sélectionnez un logiciel existant dans la liste
+                                    </p>
+                                    <p class="text-xs text-blue-600 mt-1">
+                                        Si le logiciel n'existe pas, contactez votre responsable IT pour l'ajouter au système.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="reportDate" class="block text-sm font-medium text-gray-700 mb-1">
@@ -249,7 +278,7 @@
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div class="grid grid-cols-1 gap-6 mt-4">
                             <div>
                                 <label for="reportSoftwareSelect" class="block text-sm font-medium text-gray-700 mb-1">
                                     Logiciel *
@@ -258,25 +287,15 @@
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                                     <option value="">Sélectionnez le logiciel</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label for="reportNewSoftware" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Ou Ajouter Nouveau Logiciel
-                                </label>
-                                <div class="flex space-x-2">
-                                    <input type="text" id="reportNewSoftware" placeholder="Nom du nouveau logiciel"
-                                            class="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-150">
-                                    <button type="button" onclick="addNewSoftware()" id="addSoftwareBtn"
-                                            class="p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-150 shadow-md flex items-center justify-center" 
-                                            title="Ajouter à la liste des logiciels">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Logiciel manquant ? Contactez votre responsable IT
+                                </p>
                             </div>
                         </div>
                     </div>
     
-                    <!-- Section Modalités et Temps - CORRIGÉE -->
+                    <!-- Section Modalités et Temps -->
                     <div class="border-b pb-4 border-gray-100 pt-4">
                         <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-clock text-blue-500 mr-3"></i>Modalités et Temps
@@ -319,7 +338,7 @@
                             </div>
                         </div>
                         
-                        <!-- CORRECTION : Champs de durée déplacés ici -->
+                        <!-- Champs de durée -->
                         <div id="durationFieldsContainer" class="mt-6">
                             <!-- Champs pour les heures -->
                             <div id="hourDurationFields" class="hidden">
@@ -431,7 +450,7 @@
         </div>
     </div>
 
-    <!-- Modal de détails du rapport MODIFIÉ -->
+    <!-- Modal de détails du rapport -->
     <div id="detailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -444,7 +463,7 @@
                         <button onclick="sendReportByEmail()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Envoyer par email">
                             <i class="fas fa-envelope"></i>
                         </button>
-                        <!-- NOUVEAU: Bouton modification conditionnel -->
+                        <!-- Bouton modification conditionnel -->
                         <button id="editReportButton" onclick="editCurrentReport()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Modifier">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -522,7 +541,7 @@
     
             // Initialiser le dashboard
             document.getElementById('agentName').textContent = user.fullName || 'Agent';
-            currentAgent = { uid: user.uid, name: user.fullName || 'Agent' };
+            currentAgent = { uid: user.uid, name: user.fullName || 'Agent', role: user.role };
             await initializeDashboard(user.uid);
         });
     
@@ -570,12 +589,19 @@
                     option.textContent = client.name;
                     clientSelect.appendChild(option);
                 });
+
+                // Si aucun client n'existe, afficher un message
+                if (clientsList.length === 0) {
+                    clientSelect.innerHTML = '<option value="">Aucun client disponible - Contactez le responsable IT</option>';
+                }
             } catch (error) {
                 console.error('Erreur de chargement des clients:', error);
+                const clientSelect = document.getElementById('reportClientSelect');
+                clientSelect.innerHTML = '<option value="">Erreur de chargement - Contactez le responsable IT</option>';
             }
         }
     
-        // Charger la liste des logiciels avec création automatique
+        // Charger la liste des logiciels
         async function loadSoftware() {
             try {
                 console.log('Chargement des logiciels...');
@@ -587,18 +613,6 @@
                 softwareList = [];
                 softwareSelect.innerHTML = '<option value="">Sélectionnez le logiciel</option>';
                 
-                // Logiciels par défaut si la collection est vide
-                const defaultSoftware = [
-                    "Windows",
-                    "Linux", 
-                    "macOS",
-                    "Microsoft Office",
-                    "Google Workspace",
-                    "Autre"
-                ];
-                
-                let hasSoftware = false;
-                
                 querySnapshot.forEach((doc) => {
                     const software = { id: doc.id, ...doc.data() };
                     softwareList.push(software);
@@ -607,70 +621,17 @@
                     option.value = software.name;
                     option.textContent = software.name;
                     softwareSelect.appendChild(option);
-                    
-                    hasSoftware = true;
                 });
-    
-                // Si aucun logiciel n'existe, créer les logiciels par défaut
-                if (!hasSoftware) {
-                    console.log('Création des logiciels par défaut...');
-                    
-                    for (const softwareName of defaultSoftware) {
-                        try {
-                            await addDoc(collection(db, 'software'), {
-                                name: softwareName,
-                                createdAt: serverTimestamp(),
-                                isDefault: true
-                            });
-                            
-                            // Ajouter à la liste locale
-                            const option = document.createElement('option');
-                            option.value = softwareName;
-                            option.textContent = softwareName;
-                            softwareSelect.appendChild(option);
-                            
-                            softwareList.push({ name: softwareName, isDefault: true });
-                        } catch (addError) {
-                            console.error(`Erreur création logiciel ${softwareName}:`, addError);
-                        }
-                    }
-                    
-                    console.log('Logiciels par défaut créés');
+
+                // Si aucun logiciel n'existe, afficher un message
+                if (softwareList.length === 0) {
+                    softwareSelect.innerHTML = '<option value="">Aucun logiciel disponible - Contactez le responsable IT</option>';
                 }
                 
             } catch (error) {
                 console.error('Erreur de chargement des logiciels:', error);
-                handleSoftwareError(error);
-            }
-        }
-    
-        // Gestion spécifique des erreurs des logiciels
-        function handleSoftwareError(error) {
-            const softwareSelect = document.getElementById('reportSoftwareSelect');
-            
-            switch (error.code) {
-                case 'permission-denied':
-                    softwareSelect.innerHTML = `
-                        <option value="">Permission refusée</option>
-                        <option value="autre">Autre (saisir manuellement)</option>
-                    `;
-                    showNotification('Accès aux logiciels non autorisé', 'error');
-                    break;
-                    
-                case 'not-found':
-                    softwareSelect.innerHTML = `
-                        <option value="">Collection non trouvée</option>
-                        <option value="autre">Autre</option>
-                    `;
-                    console.warn('Collection "software" non existante');
-                    break;
-                    
-                default:
-                    softwareSelect.innerHTML = `
-                        <option value="">Erreur de connexion</option>
-                        <option value="autre">Autre</option>
-                    `;
-                    showNotification('Problème de chargement des logiciels', 'warning');
+                const softwareSelect = document.getElementById('reportSoftwareSelect');
+                softwareSelect.innerHTML = '<option value="">Erreur de chargement - Contactez le responsable IT</option>';
             }
         }
     
@@ -731,47 +692,36 @@
         // =================================================================
     
         // Basculer entre les champs de durée
-       // Fonction pour basculer entre les champs de durée
-// Fonction pour basculer entre les champs de durée
-function toggleDurationFields() {
-    console.log('toggleDurationFields appelée');
-    
-    const durationUnit = document.getElementById('reportDurationUnit').value;
-    const hourFields = document.getElementById('hourDurationFields');
-    const dayFields = document.getElementById('dayDurationFields');
-    const durationHelp = document.getElementById('durationHelp');
-    
-    console.log('Unité sélectionnée:', durationUnit);
-    console.log('Éléments trouvés:', { hourFields, dayFields, durationHelp });
-    
-    // Masquer tous les champs d'abord
-    if (hourFields) hourFields.classList.add('hidden');
-    if (dayFields) dayFields.classList.add('hidden');
-    if (durationHelp) durationHelp.classList.add('hidden');
-    
-    // Afficher les champs appropriés
-    if (durationUnit === 'Heure' && hourFields) {
-        console.log('Affichage des champs heures');
-        hourFields.classList.remove('hidden');
-    } else if (durationUnit === 'Jour' && dayFields) {
-        console.log('Affichage des champs jours');
-        dayFields.classList.remove('hidden');
-    } else if (durationHelp) {
-        console.log('Affichage du message d\'aide');
-        durationHelp.classList.remove('hidden');
-    }
-}
+        function toggleDurationFields() {
+            const durationUnit = document.getElementById('reportDurationUnit').value;
+            const hourFields = document.getElementById('hourDurationFields');
+            const dayFields = document.getElementById('dayDurationFields');
+            const durationHelp = document.getElementById('durationHelp');
+            
+            // Masquer tous les champs d'abord
+            if (hourFields) hourFields.classList.add('hidden');
+            if (dayFields) dayFields.classList.add('hidden');
+            if (durationHelp) durationHelp.classList.add('hidden');
+            
+            // Afficher les champs appropriés
+            if (durationUnit === 'Heure' && hourFields) {
+                hourFields.classList.remove('hidden');
+            } else if (durationUnit === 'Jour' && dayFields) {
+                dayFields.classList.remove('hidden');
+            } else if (durationHelp) {
+                durationHelp.classList.remove('hidden');
+            }
+        }
 
-// Initialiser les champs de durée
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM chargé - initialisation des champs de durée');
-    setTimeout(() => {
-        toggleDurationFields();
-    }, 100);
-});
+        // Initialiser les champs de durée
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                toggleDurationFields();
+            }, 100);
+        });
 
-// S'assurer que la fonction est disponible globalement
-window.toggleDurationFields = toggleDurationFields;
+        // S'assurer que la fonction est disponible globalement
+        window.toggleDurationFields = toggleDurationFields;
     
         // =================================================================
         // GESTION DU MODAL DE RAPPORT
@@ -814,97 +764,6 @@ window.toggleDurationFields = toggleDurationFields;
             document.body.style.overflow = 'auto';
         }
     
-        // Ajouter un nouveau client
-        window.addNewClient = async function() {
-            const newClientInput = document.getElementById('reportNewClient');
-            const clientName = newClientInput.value.trim();
-            
-            if (!clientName) {
-                showNotification('Veuillez saisir un nom de client', 'error');
-                return;
-            }
-    
-            try {
-                // Ajouter le client à Firestore
-                await addDoc(collection(db, 'clients'), {
-                    name: clientName,
-                    createdAt: serverTimestamp()
-                });
-    
-                // Recharger la liste des clients
-                await loadClients();
-                
-                // Sélectionner le nouveau client
-                document.getElementById('reportClientSelect').value = clientName;
-                newClientInput.value = '';
-                
-                showNotification('Client ajouté avec succès', 'success');
-            } catch (error) {
-                console.error('Erreur ajout client:', error);
-                showNotification('Erreur lors de l\'ajout du client', 'error');
-            }
-        }
-    
-        // Ajouter un nouveau logiciel
-        window.addNewSoftware = async function() {
-            const newSoftwareInput = document.getElementById('reportNewSoftware');
-            const softwareName = newSoftwareInput.value.trim();
-            
-            if (!softwareName) {
-                showNotification('Veuillez saisir un nom de logiciel', 'error');
-                newSoftwareInput.focus();
-                return;
-            }
-    
-            // Vérifier si le logiciel existe déjà
-            if (softwareList.some(software => software.name.toLowerCase() === softwareName.toLowerCase())) {
-                showNotification('Ce logiciel existe déjà', 'warning');
-                document.getElementById('reportSoftwareSelect').value = softwareName;
-                newSoftwareInput.value = '';
-                return;
-            }
-    
-            try {
-                // Afficher un indicateur de chargement
-                const addButton = document.getElementById('addSoftwareBtn');
-                const originalHtml = addButton.innerHTML;
-                addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                addButton.disabled = true;
-    
-                // Ajouter le logiciel à Firestore
-                const docRef = await addDoc(collection(db, 'software'), {
-                    name: softwareName,
-                    createdBy: currentAgent.uid,
-                    createdAt: serverTimestamp()
-                });
-    
-                console.log('Logiciel ajouté avec ID:', docRef.id);
-    
-                // Recharger la liste des logiciels
-                await loadSoftware();
-                
-                // Sélectionner le nouveau logiciel
-                document.getElementById('reportSoftwareSelect').value = softwareName;
-                newSoftwareInput.value = '';
-                
-                showNotification('Logiciel ajouté avec succès', 'success');
-                
-            } catch (error) {
-                console.error('Erreur ajout logiciel:', error);
-                
-                if (error.code === 'permission-denied') {
-                    showNotification('Permission refusée pour ajouter un logiciel', 'error');
-                } else {
-                    showNotification('Erreur lors de l\'ajout du logiciel', 'error');
-                }
-            } finally {
-                // Restaurer le bouton
-                const addButton = document.getElementById('addSoftwareBtn');
-                addButton.innerHTML = '<i class="fas fa-plus"></i>';
-                addButton.disabled = false;
-            }
-        }
-    
         // Soumettre un nouveau rapport
         window.submitReport = async function() {
             try {
@@ -937,12 +796,12 @@ window.toggleDurationFields = toggleDurationFields;
                 }
     
                 const formData = {
-                    clientName: document.getElementById('reportClientSelect').value || document.getElementById('reportNewClient').value,
+                    clientName: document.getElementById('reportClientSelect').value,
                     interlocutor: document.getElementById('reportInterlocutor').value,
                     contact: document.getElementById('reportContact').value,
                     date: document.getElementById('reportDate').value,
                     site: document.getElementById('reportSite').value,
-                    software: document.getElementById('reportSoftwareSelect').value || document.getElementById('reportNewSoftware').value,
+                    software: document.getElementById('reportSoftwareSelect').value,
                     interventionType: document.getElementById('reportInterventionType').value,
                     contract: document.getElementById('reportContract').value,
                     durationUnit: durationUnit,
@@ -968,6 +827,12 @@ window.toggleDurationFields = toggleDurationFields;
                     showNotification('Veuillez remplir tous les champs obligatoires', 'error');
                     return;
                 }
+
+                // Validation supplémentaire pour s'assurer que les sélections sont valides
+                if (formData.clientName === "" || formData.software === "") {
+                    showNotification('Veuillez sélectionner un client et un logiciel valides', 'error');
+                    return;
+                }
     
                 // Si on est en mode édition, mettre à jour le rapport existant
                 if (currentEditingReportId) {
@@ -985,7 +850,11 @@ window.toggleDurationFields = toggleDurationFields;
                 
             } catch (error) {
                 console.error('Erreur création/modification rapport:', error);
-                showNotification('Erreur lors de la sauvegarde du rapport', 'error');
+                if (error.code === 'permission-denied') {
+                    showNotification('Permission refusée - Vous ne pouvez pas créer/modifier des rapports', 'error');
+                } else {
+                    showNotification('Erreur lors de la sauvegarde du rapport', 'error');
+                }
             }
         }
     
@@ -1372,46 +1241,6 @@ window.toggleDurationFields = toggleDurationFields;
         window.sendReportByEmail = function() {
             if (!currentReportDetails) return;
             window.sendReportEmail(currentReportDetails.id);
-        }
-    
-        // Exporter tous mes rapports en PDF
-        window.exportMyReportsToPDF = function() {
-            if (agentReports.length === 0) {
-                showNotification('Aucun rapport à exporter', 'warning');
-                return;
-            }
-    
-            showNotification(`Export PDF de ${agentReports.length} rapport(s) en cours...`, 'info');
-            
-            // Ici vous pouvez intégrer une librairie comme jsPDF ou pdfmake
-            setTimeout(() => {
-                showNotification('Fonction d\'export PDF à implémenter avec une librairie PDF', 'info');
-            }, 1000);
-        }
-    
-        // Envoyer tous les rapports par email
-        window.sendAllReportsByEmail = function() {
-            if (agentReports.length === 0) {
-                showNotification('Aucun rapport à envoyer', 'warning');
-                return;
-            }
-    
-            const subject = `Tous mes rapports d'intervention - ${currentAgent.name}`;
-            let body = `Bonjour,\n\nVoici le résumé de tous mes rapports d'intervention :\n\n`;
-            
-            agentReports.forEach((report, index) => {
-                body += `Rapport ${index + 1}:\n`;
-                body += `- Client: ${report.clientName}\n`;
-                body += `- Date: ${report.date}\n`;
-                body += `- Type: ${report.interventionType}\n`;
-                body += `- Durée: ${report.duration}\n`;
-                body += `- Statut: ${report.isValidated ? 'Validé' : report.status}\n\n`;
-            });
-    
-            body += `Total: ${agentReports.length} rapport(s)\n\nCordialement,\n${currentAgent.name}`;
-    
-            const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(mailtoLink, '_blank');
         }
     
         // =================================================================

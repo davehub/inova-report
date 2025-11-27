@@ -186,7 +186,7 @@
                 </div>
             </div>
 
-            <!-- NOUVELLE CARTE : Total Interventions -->
+            <!-- Carte Total Interventions -->
             <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mr-4">
@@ -233,41 +233,79 @@
                     <p class="text-xs text-gray-500">Équipe technique</p>
                 </div>
             </div>
-            
-            <!-- Interventions Site -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fas fa-map-marker-alt text-orange-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm font-medium">Sur Site</p>
-                        <p class="text-2xl font-bold text-gray-800" id="onsiteInterventions">0</p>
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                    <p class="text-xs text-gray-500">Interventions physiques</p>
-                </div>
-            </div>
-             <!-- Interventions en ligne -->
-         <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-laptop text-green-600 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-gray-500 text-sm font-medium">En Ligne</p>
-                    <p class="text-2xl font-bold text-gray-800" id="onlineInterventions">0</p>
-                </div>
-            </div>
-            <div class="mt-4 pt-4 border-t border-gray-100">
-                <p class="text-xs text-gray-500">Interventions en Ligne</p>
-            </div>
-        </div>
         </div>
 
-        
-    </div>
+        <!-- NOUVELLE SECTION : Actions de Gestion -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 fade-in">
+            <button onclick="openClientManagement()" class="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-6 rounded-xl shadow-lg hover:from-green-700 hover:to-emerald-800 transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-users text-white text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-lg font-bold">Gérer les Clients</p>
+                        <p class="text-white/80 text-sm">Ajouter, modifier, supprimer</p>
+                    </div>
+                </div>
+            </button>
+
+            <button onclick="openSoftwareManagement()" class="bg-gradient-to-r from-purple-600 to-violet-700 text-white p-6 rounded-xl shadow-lg hover:from-purple-700 hover:to-violet-800 transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-laptop-code text-white text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-lg font-bold">Gérer les Logiciels</p>
+                        <p class="text-white/80 text-sm">Ajouter, modifier, supprimer</p>
+                    </div>
+                </div>
+            </button>
+
+            <button onclick="viewAllReports()" class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-800 transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-lg font-bold">Tous les Rapports</p>
+                        <p class="text-white/80 text-sm">Consulter et valider</p>
+                    </div>
+                </div>
+            </button>
+
+            <button onclick="exportAllData()" class="bg-gradient-to-r from-orange-600 to-red-700 text-white p-6 rounded-xl shadow-lg hover:from-orange-700 hover:to-red-800 transition-all duration-300">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-download text-white text-xl"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-lg font-bold">Exporter</p>
+                        <p class="text-white/80 text-sm">Données et rapports</p>
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Section Actions Rapides -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 no-print fade-in">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-bolt mr-2 text-yellow-600"></i>Actions Rapides
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="batchValidateReports()" class="flex items-center justify-center space-x-2 bg-green-50 text-green-700 p-4 rounded-lg border border-green-200 hover:bg-green-100 transition-colors">
+                    <i class="fas fa-check-double text-green-600"></i>
+                    <span>Valider en lot</span>
+                </button>
+                <button onclick="openClientManagement()" class="flex items-center justify-center space-x-2 bg-blue-50 text-blue-700 p-4 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-user-plus text-blue-600"></i>
+                    <span>Nouveau Client</span>
+                </button>
+                <button onclick="openSoftwareManagement()" class="flex items-center justify-center space-x-2 bg-purple-50 text-purple-700 p-4 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
+                    <i class="fas fa-plus-circle text-purple-600"></i>
+                    <span>Nouveau Logiciel</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Graphiques -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 fade-in">
@@ -342,7 +380,7 @@
             </div>
         </div>
 
-        <!-- Tableau des Rapports MODIFIÉ -->
+        <!-- Tableau des Rapports -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden fade-in">
             <div class="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-700">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -398,7 +436,7 @@
     </div>
 
     <!-- Modals -->
-    <!-- Modal Détails du Rapport MODIFIÉ -->
+    <!-- Modal Détails du Rapport -->
     <div id="detailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -411,7 +449,6 @@
                         <button onclick="sendReportByEmail()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Envoyer par email">
                             <i class="fas fa-envelope"></i>
                         </button>
-                        <!-- NOUVEAU BOUTON VALIDATION -->
                         <button id="validateButton" onclick="validateReport()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Valider le rapport">
                             <i class="fas fa-check-circle"></i>
                         </button>
@@ -482,7 +519,7 @@
         // Fonction principale d'initialisation du dashboard
         async function initializeDashboard() {
             try {
-                console.log('Initialisation du dashboard...');
+                console.log('Initialisation du dashboard responsable...');
                 
                 // Afficher le nom de l'utilisateur
                 document.getElementById('responsableName').textContent = currentUser.displayName || currentUser.email || 'Responsable IT';
@@ -500,7 +537,7 @@
                 document.getElementById('main-nav').classList.remove('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
                 
-                console.log('Dashboard initialisé avec succès');
+                console.log('Dashboard responsable initialisé avec succès');
                 
             } catch (error) {
                 console.error('Erreur initialisation dashboard:', error);
@@ -542,7 +579,7 @@
             }
         });
 
-        // Écoute en temps réel des rapports MODIFIÉE
+        // Écoute en temps réel des rapports
         async function setupRealTimeListener() {
             try {
                 const reportsRef = collection(db, 'reports');
@@ -638,71 +675,71 @@
             }
         }
 
-        // Mettre à jour les filtres MODIFIÉE
-function updateFilters() {
-    const agentFilter = document.getElementById('filterAgent');
-    const clientFilter = document.getElementById('filterClient');
-    const typeFilter = document.getElementById('filterType');
+        // Mettre à jour les filtres
+        function updateFilters() {
+            const agentFilter = document.getElementById('filterAgent');
+            const clientFilter = document.getElementById('filterClient');
+            const typeFilter = document.getElementById('filterType');
 
-    // Mettre à jour les agents avec recherche améliorée
-    agentFilter.innerHTML = '<option value="">Tous les agents</option>';
-    
-    // Créer un Set des noms d'agents uniques
-    const uniqueAgents = new Set();
-    allReports.forEach(report => {
-        if (report.agentName && report.agentName !== 'Agent inconnu') {
-            uniqueAgents.add(report.agentName);
-        }
-    });
-    
-    // Ajouter les agents au filtre
-    Array.from(uniqueAgents).sort().forEach(agentName => {
-        const option = new Option(agentName, agentName);
-        agentFilter.add(option);
-    });
+            // Mettre à jour les agents avec recherche améliorée
+            agentFilter.innerHTML = '<option value="">Tous les agents</option>';
+            
+            // Créer un Set des noms d'agents uniques
+            const uniqueAgents = new Set();
+            allReports.forEach(report => {
+                if (report.agentName && report.agentName !== 'Agent inconnu') {
+                    uniqueAgents.add(report.agentName);
+                }
+            });
+            
+            // Ajouter les agents au filtre
+            Array.from(uniqueAgents).sort().forEach(agentName => {
+                const option = new Option(agentName, agentName);
+                agentFilter.add(option);
+            });
 
-    // Mettre à jour les clients avec recherche améliorée
-    const uniqueClients = [...new Set(allReports.map(r => r.clientName).filter(name => name && name !== 'Client inconnu'))];
-    clientFilter.innerHTML = '<option value="">Tous les clients</option>';
-    uniqueClients.sort().forEach(client => {
-        const option = new Option(client, client);
-        clientFilter.add(option);
-    });
+            // Mettre à jour les clients avec recherche améliorée
+            const uniqueClients = [...new Set(allReports.map(r => r.clientName).filter(name => name && name !== 'Client inconnu'))];
+            clientFilter.innerHTML = '<option value="">Tous les clients</option>';
+            uniqueClients.sort().forEach(client => {
+                const option = new Option(client, client);
+                clientFilter.add(option);
+            });
 
-    // Mettre à jour les types avec extraction améliorée
-    const allTypes = new Set();
-    allReports.forEach(report => {
-        if (report.type && typeof report.type === 'string') {
-            if (report.type.includes(',')) {
-                // Séparer les types multiples
-                const types = report.type.split(',').map(t => t.trim());
-                types.forEach(type => allTypes.add(type));
-            } else {
-                allTypes.add(report.type);
+            // Mettre à jour les types avec extraction améliorée
+            const allTypes = new Set();
+            allReports.forEach(report => {
+                if (report.type && typeof report.type === 'string') {
+                    if (report.type.includes(',')) {
+                        // Séparer les types multiples
+                        const types = report.type.split(',').map(t => t.trim());
+                        types.forEach(type => allTypes.add(type));
+                    } else {
+                        allTypes.add(report.type);
+                    }
+                }
+            });
+            
+            typeFilter.innerHTML = '<option value="">Tous les types</option>';
+            Array.from(allTypes).filter(Boolean).sort().forEach(type => {
+                const option = new Option(type, type);
+                typeFilter.add(option);
+            });
+
+            // Mettre les dates par défaut (30 derniers jours)
+            const defaultEndDate = new Date().toISOString().split('T')[0];
+            const defaultStartDate = new Date();
+            defaultStartDate.setDate(defaultStartDate.getDate() - 30);
+            
+            if (!document.getElementById('filterDateStart').value) {
+                document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
+            }
+            if (!document.getElementById('filterDateEnd').value) {
+                document.getElementById('filterDateEnd').value = defaultEndDate;
             }
         }
-    });
-    
-    typeFilter.innerHTML = '<option value="">Tous les types</option>';
-    Array.from(allTypes).filter(Boolean).sort().forEach(type => {
-        const option = new Option(type, type);
-        typeFilter.add(option);
-    });
 
-    // Mettre les dates par défaut (30 derniers jours)
-    const defaultEndDate = new Date().toISOString().split('T')[0];
-    const defaultStartDate = new Date();
-    defaultStartDate.setDate(defaultStartDate.getDate() - 30);
-    
-    if (!document.getElementById('filterDateStart').value) {
-        document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
-    }
-    if (!document.getElementById('filterDateEnd').value) {
-        document.getElementById('filterDateEnd').value = defaultEndDate;
-    }
-}
-
-        // Afficher les rapports MODIFIÉE
+        // Afficher les rapports
         function displayReports() {
             const tableBody = document.getElementById('reportsTableBody');
             const noReportsDiv = document.getElementById('noReports');
@@ -793,7 +830,7 @@ function updateFilters() {
             });
         }
 
-        // Mettre à jour les statistiques MODIFIÉE
+        // Mettre à jour les statistiques
         function updateStatistics() {
             document.getElementById('totalReports').textContent = filteredReports.length;
             document.getElementById('totalInterventions').textContent = filteredReports.length;
@@ -813,14 +850,14 @@ function updateFilters() {
             ).length;
             document.getElementById('onsiteInterventions').textContent = onsiteCount;
 
-             // NOUVEAU: Interventions en ligne
-    const onlineCount = filteredReports.filter(report => {
-        if (!report.type) return false;
-        const type = report.type.toLowerCase();
-        return type.includes('en ligne') || type.includes('online') || type.includes('distanciel') || 
-               type.includes('remote') || type.includes('à distance') || type.includes('téléphonique');
-    }).length;
-    document.getElementById('onlineInterventions').textContent = onlineCount;
+            // Interventions en ligne
+            const onlineCount = filteredReports.filter(report => {
+                if (!report.type) return false;
+                const type = report.type.toLowerCase();
+                return type.includes('en ligne') || type.includes('online') || type.includes('distanciel') || 
+                       type.includes('remote') || type.includes('à distance') || type.includes('téléphonique');
+            }).length;
+            document.getElementById('onlineInterventions').textContent = onlineCount;
 
             updateFilterInfo();
         }
@@ -850,22 +887,129 @@ function updateFilters() {
             }
         }
 
-        // NOUVELLE FONCTION: Valider un rapport depuis le tableau
+        // NOUVELLES FONCTIONS POUR LA GESTION
+
+        // Ouvrir la page de gestion des clients
+        window.openClientManagement = function() {
+            window.open('client-management.html', 'GestionClients', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        }
+
+        // Ouvrir la page de gestion des logiciels
+        window.openSoftwareManagement = function() {
+            window.open('software-management.html', 'GestionLogiciels', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        }
+
+        // Fonction pour rafraîchir les données depuis les pages externes
+        window.refreshLists = async function() {
+            showNotification('Mise à jour des listes...', 'info');
+            await loadAgents();
+            await updateFilters();
+            showNotification('Listes mises à jour avec succès', 'success');
+        }
+
+        // Voir tous les rapports
+        window.viewAllReports = function() {
+            // Réinitialiser les filtres pour tout afficher
+            resetFilters();
+            showNotification('Affichage de tous les rapports', 'info');
+        }
+
+        // Exporter toutes les données
+        window.exportAllData = function() {
+            if (allReports.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+            
+            // Préparer les données pour l'export
+            const exportData = {
+                rapports: allReports,
+                statistiques: {
+                    totalRapports: allReports.length,
+                    rapportsCetteSemaine: allReports.filter(report => {
+                        const oneWeekAgo = new Date();
+                        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                        const reportDate = new Date(report.date);
+                        return reportDate >= oneWeekAgo;
+                    }).length,
+                    agentsActifs: agentsMap.size,
+                    interventionsSurSite: allReports.filter(report => 
+                        report.type && (report.type === 'sur_site' || report.type.toLowerCase().includes('site'))
+                    ).length,
+                    interventionsEnLigne: allReports.filter(report => {
+                        if (!report.type) return false;
+                        const type = report.type.toLowerCase();
+                        return type.includes('en ligne') || type.includes('online') || type.includes('distanciel');
+                    }).length
+                },
+                dateExport: new Date().toISOString(),
+                exportePar: currentUser.displayName || currentUser.email
+            };
+            
+            // Créer et télécharger le fichier JSON
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `export-inovareport-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showNotification(`Export de ${allReports.length} rapports réussi`, 'success');
+        }
+
+        // Fonction pour valider plusieurs rapports en lot
+        window.batchValidateReports = function() {
+            const unvalidatedReports = allReports.filter(report => !report.isValidated);
+            
+            if (unvalidatedReports.length === 0) {
+                showNotification('Aucun rapport à valider', 'info');
+                return;
+            }
+            
+            if (confirm(`Voulez-vous valider ${unvalidatedReports.length} rapport(s) non validé(s) ?`)) {
+                showNotification(`Validation de ${unvalidatedReports.length} rapport(s) en cours...`, 'info');
+                
+                // Simuler la validation (à adapter avec vos appels Firebase)
+                unvalidatedReports.forEach(async (report, index) => {
+                    try {
+                        const reportRef = doc(db, 'reports', report.id);
+                        await updateDoc(reportRef, {
+                            isValidated: true,
+                            validatedBy: currentUser.uid,
+                            validatedAt: new Date(),
+                            canEdit: false
+                        });
+                        
+                        if (index === unvalidatedReports.length - 1) {
+                            showNotification(`Tous les rapports ont été validés avec succès`, 'success');
+                        }
+                    } catch (error) {
+                        console.error(`Erreur validation rapport ${report.id}:`, error);
+                    }
+                });
+            }
+        }
+
+        // Valider un rapport depuis le tableau
         window.validateReportFromTable = async function(reportId) {
             if (confirm('Êtes-vous sûr de vouloir valider ce rapport ? L\'agent ne pourra plus le modifier.')) {
                 await validateReportInDatabase(reportId);
             }
         }
 
-        // NOUVELLE FONCTION: Valider un rapport (depuis la modal)
+        // Valider un rapport (depuis la modal)
         window.validateReport = async function() {
-            if (currentReportId && confirm('Êtes-vous sûr de vouloir valider ce rapport ? L\'agent ne pourla plus le modifier.')) {
+            if (currentReportId && confirm('Êtes-vous sûr de vouloir valider ce rapport ? L\'agent ne pourra plus le modifier.')) {
                 await validateReportInDatabase(currentReportId);
                 closeDetailsModal();
             }
         }
 
-        // NOUVELLE FONCTION: Validation dans la base de données
+        // Validation dans la base de données
         async function validateReportInDatabase(reportId) {
             try {
                 const reportRef = doc(db, 'reports', reportId);
@@ -884,7 +1028,7 @@ function updateFilters() {
             }
         }
 
-        // Fonction viewReportDetails MODIFIÉE
+        // Fonction viewReportDetails
         window.viewReportDetails = function(reportId) {
             const report = allReports.find(r => r.id === reportId);
             if (!report) return;
@@ -1129,7 +1273,7 @@ function updateFilters() {
             return weeklyCounts;
         }
 
-        // Calculer les données par type MODIFIÉE
+        // Calculer les données par type
         function calculateTypeData() {
             const typeCounts = {};
             
@@ -1176,7 +1320,7 @@ function updateFilters() {
             return sortedTypes;
         }
 
-        // Fonction pour préparer le contenu imprimable du rapport MODIFIÉE
+        // Fonction pour préparer le contenu imprimable du rapport
         function preparePrintableReport(report) {
             const printableDiv = document.getElementById('printable-report');
             
@@ -1274,98 +1418,73 @@ function updateFilters() {
             printableDiv.classList.remove('hidden');
         }
 
-        // Fonction applyFilters MODIFIÉE et AMÉLIORÉE
-window.applyFilters = function() {
-    const agent = document.getElementById('filterAgent').value;
-    const client = document.getElementById('filterClient').value;
-    const type = document.getElementById('filterType').value;
-    const dateStart = document.getElementById('filterDateStart').value;
-    const dateEnd = document.getElementById('filterDateEnd').value;
-    
-    filteredReports = allReports.filter(report => {
-        // Filtre par agent (recherche par ID utilisateur ou nom)
-        let isAgentMatch = !agent;
-        if (agent) {
-            // Recherche par ID utilisateur
-            if (report.userId === agent) {
-                isAgentMatch = true;
-            } 
-            // Recherche par nom d'agent (fallback)
-            else if (report.agentName && report.agentName.toLowerCase().includes(agent.toLowerCase())) {
-                isAgentMatch = true;
-            }
-        }
-        
-        // Filtre par client (recherche textuelle)
-        let isClientMatch = !client;
-        if (client && report.clientName) {
-            isClientMatch = report.clientName.toLowerCase().includes(client.toLowerCase());
-        }
-        
-        // Filtre par type d'intervention (recherche dans les types multiples)
-        let isTypeMatch = !type;
-        if (type && report.type) {
-            const reportTypes = typeof report.type === 'string' 
-                ? report.type.split(',').map(t => t.trim().toLowerCase())
-                : [String(report.type).toLowerCase()];
+        // Fonction applyFilters
+        window.applyFilters = function() {
+            const agent = document.getElementById('filterAgent').value;
+            const client = document.getElementById('filterClient').value;
+            const type = document.getElementById('filterType').value;
+            const dateStart = document.getElementById('filterDateStart').value;
+            const dateEnd = document.getElementById('filterDateEnd').value;
             
-            const searchType = type.toLowerCase();
-            isTypeMatch = reportTypes.some(t => t.includes(searchType));
+            filteredReports = allReports.filter(report => {
+                // Filtre par agent (recherche par ID utilisateur ou nom)
+                let isAgentMatch = !agent;
+                if (agent) {
+                    // Recherche par ID utilisateur
+                    if (report.userId === agent) {
+                        isAgentMatch = true;
+                    } 
+                    // Recherche par nom d'agent (fallback)
+                    else if (report.agentName && report.agentName.toLowerCase().includes(agent.toLowerCase())) {
+                        isAgentMatch = true;
+                    }
+                }
+                
+                // Filtre par client (recherche textuelle)
+                let isClientMatch = !client;
+                if (client && report.clientName) {
+                    isClientMatch = report.clientName.toLowerCase().includes(client.toLowerCase());
+                }
+                
+                // Filtre par type d'intervention (recherche dans les types multiples)
+                let isTypeMatch = !type;
+                if (type && report.type) {
+                    const reportTypes = typeof report.type === 'string' 
+                        ? report.type.split(',').map(t => t.trim().toLowerCase())
+                        : [String(report.type).toLowerCase()];
+                    
+                    const searchType = type.toLowerCase();
+                    isTypeMatch = reportTypes.some(t => t.includes(searchType));
+                }
+                
+                // Filtre par date
+                let isDateMatch = true;
+                if (dateStart && report.date < dateStart) isDateMatch = false;
+                if (dateEnd && report.date > dateEnd) isDateMatch = false;
+
+                return isAgentMatch && isClientMatch && isTypeMatch && isDateMatch;
+            });
+
+            displayReports();
+            updateStatistics();
+            updateCharts();
         }
-        
-        // Filtre par date
-        let isDateMatch = true;
-        if (dateStart && report.date < dateStart) isDateMatch = false;
-        if (dateEnd && report.date > dateEnd) isDateMatch = false;
 
-        return isAgentMatch && isClientMatch && isTypeMatch && isDateMatch;
-    });
-
-    displayReports();
-    updateStatistics();
-    updateCharts();
-}
-
-window.resetFilters = function() {
-    document.getElementById('filterAgent').value = '';
-    document.getElementById('filterClient').value = '';
-    document.getElementById('filterType').value = '';
-    
-    // Réinitialiser aux 30 derniers jours
-    const defaultEndDate = new Date().toISOString().split('T')[0];
-    const defaultStartDate = new Date();
-    defaultStartDate.setDate(defaultStartDate.getDate() - 30);
-    
-    document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
-    document.getElementById('filterDateEnd').value = defaultEndDate;
-    
-    applyFilters();
-}
-
-// Fonction de recherche avancée
-window.advancedSearch = function() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    
-    if (!searchTerm) {
-        applyFilters();
-        return;
-    }
-    
-    filteredReports = allReports.filter(report => {
-        return (
-            (report.agentName && report.agentName.toLowerCase().includes(searchTerm)) ||
-            (report.clientName && report.clientName.toLowerCase().includes(searchTerm)) ||
-            (report.site && report.site.toLowerCase().includes(searchTerm)) ||
-            (report.type && report.type.toLowerCase().includes(searchTerm)) ||
-            (report.object && report.object.toLowerCase().includes(searchTerm)) ||
-            (report.interlocutor && report.interlocutor.toLowerCase().includes(searchTerm))
-        );
-    });
-    
-    displayReports();
-    updateStatistics();
-    updateCharts();
-}
+        window.resetFilters = function() {
+            document.getElementById('filterAgent').value = '';
+            document.getElementById('filterClient').value = '';
+            document.getElementById('filterType').value = '';
+            
+            // Réinitialiser aux 30 derniers jours
+            const defaultEndDate = new Date().toISOString().split('T')[0];
+            const defaultStartDate = new Date();
+            defaultStartDate.setDate(defaultStartDate.getDate() - 30);
+            
+            document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
+            document.getElementById('filterDateEnd').value = defaultEndDate;
+            
+            applyFilters();
+        }
 
         window.refreshData = async function() {
             showNotification('Actualisation des données...', 'info');
