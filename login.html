@@ -42,7 +42,7 @@
                         <input type="password" id="password" required
                                class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="••••••••">
-                        <button type="button" onclick="togglePassword()" title="Afficher/Masquer le mot de passe"
+                        <button type="button" id="togglePassword" title="Afficher/Masquer le mot de passe"
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center">
                             <i class="fas fa-eye text-gray-400" id="toggleIcon"></i>
                         </button>
@@ -58,7 +58,7 @@
                             Se souvenir de moi
                         </label>
                     </div>
-                    <a href="#" onclick="resetPassword()" class="text-sm text-blue-600 hover:underline">
+                    <a href="#" id="resetBtn" class="text-sm text-blue-600 hover:underline">
                         Mot de passe oublié ?
                     </a>
                 </div>
@@ -98,148 +98,43 @@
         </div>
     </div>
     
-    <script type="module">
-        import authService from './js/services/auth.js';
+    <!-- Modal pour réinitialisation mot de passe -->
+    <div id="resetModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Réinitialiser le mot de passe</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="resetPasswordForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Entrez votre adresse email
+                    </label>
+                    <input type="email" id="resetEmail" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="votre@email.com">
+                </div>
+                <div id="resetErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-3"></div>
+                <div id="resetSuccessMessage" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg mb-3"></div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancelReset"
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Annuler
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Envoyer le lien
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/login.js" type="module" >
         
-        // Toggle password visibility
-        window.togglePassword = function() {
-            const passwordField = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
         
-        // Réinitialisation du mot de passe
-        window.resetPassword = async function() {
-            const email = document.getElementById('email').value.trim();
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            
-            errorDiv.classList.add('hidden');
-            successDiv.classList.add('hidden');
-            
-            if (!email) {
-                errorDiv.textContent = 'Veuillez entrer votre adresse email';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            
-            try {
-                await authService.resetPassword(email);
-                successDiv.textContent = 'Un email de réinitialisation a été envoyé à ' + email;
-                successDiv.classList.remove('hidden');
-            } catch (error) {
-                console.error('Erreur réinitialisation:', error);
-                errorDiv.textContent = 'Erreur lors de l\'envoi de l\'email de réinitialisation';
-                errorDiv.classList.remove('hidden');
-            }
-        }
-        
-        // Formulaire de connexion
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
-            
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            const loginBtn = document.getElementById('loginBtn');
-            
-            // Reset messages
-            errorDiv.classList.add('hidden');
-            successDiv.classList.add('hidden');
-            
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connexion...';
-            
-            try {
-                const result = await authService.login(email, password);
-                
-                if (result.success) {
-                    const user = result.user;
-                    
-                    // Sauvegarder l'email si "Se souvenir de moi" est coché
-                    if (remember) {
-                        localStorage.setItem('userEmail', email);
-                    } else {
-                        localStorage.removeItem('userEmail');
-                    }
-                    
-                    // Redirection directe vers les bons fichiers HTML
-                    if (user.role === 'responsable' || user.role === 'admin') {
-                        window.location.href = 'responsable-dashboard.html';
-                    } else {
-                        window.location.href = 'agent-dashboard.html';
-                    }
-                } else {
-                    // Gérer l'erreur retournée par authService
-                    errorDiv.textContent = result.error;
-                    errorDiv.classList.remove('hidden');
-                    
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Se connecter';
-                }
-            } catch (error) {
-                console.error('Erreur connexion:', error);
-                
-                // Gérer les erreurs spécifiques
-                let errorMessage = 'Erreur de connexion';
-                
-                if (error.code) {
-                    switch(error.code) {
-                        case 'auth/user-not-found':
-                            errorMessage = 'Aucun compte n\'existe avec cette adresse email';
-                            break;
-                        case 'auth/wrong-password':
-                            errorMessage = 'Mot de passe incorrect';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'Adresse email invalide';
-                            break;
-                        case 'auth/user-disabled':
-                            errorMessage = 'Ce compte a été désactivé';
-                            break;
-                        case 'auth/too-many-requests':
-                            errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard';
-                            break;
-                        case 'auth/network-request-failed':
-                            errorMessage = 'Erreur de connexion. Vérifiez votre connexion internet';
-                            break;
-                        default:
-                            if (error.message) {
-                                errorMessage = error.message;
-                            }
-                    }
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                
-                errorDiv.textContent = errorMessage;
-                errorDiv.classList.remove('hidden');
-                
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Se connecter';
-            }
-        });
-        
-        // Auto-fill email if remembered
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedEmail = localStorage.getItem('userEmail');
-            if (savedEmail) {
-                document.getElementById('email').value = savedEmail;
-                document.getElementById('remember').checked = true;
-            }
-        });
     </script>
 </body>
 </html>

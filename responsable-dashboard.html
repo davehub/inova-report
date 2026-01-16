@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Votre CSS existant reste inchangé */
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.5);
             -webkit-backdrop-filter: blur(5px);
@@ -80,7 +81,6 @@
             align-items: center;
             z-index: 9999;
         }
-        /* Styles pour l'impression du rapport */
         .print-header {
             border-bottom: 2px solid #4f46e5;
             padding-bottom: 15px;
@@ -115,6 +115,27 @@
             justify-content: center;
             margin-left: 4px;
             font-size: 10px;
+        }
+        .edit-modal-content {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .confirmation-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .notification {
+            z-index: 9999;
+        }
+        .resize-vertical {
+            resize: vertical;
         }
     </style>
 </head>
@@ -186,23 +207,7 @@
                 </div>
             </div>
 
-            <!-- Carte Total Interventions -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mr-4">
-                        <i class="fas fa-tools text-red-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-500 text-sm font-medium">Total Interventions</p>
-                        <p class="text-2xl font-bold text-gray-800" id="totalInterventions">0</p>
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                    <p class="text-xs text-gray-500">Toutes interventions</p>
-                </div>
-            </div>
-            
-            <!-- Cette Semaine -->
+            <!-- Carte Cette Semaine -->
             <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mr-4">
@@ -215,6 +220,22 @@
                 </div>
                 <div class="mt-4 pt-4 border-t border-gray-100">
                     <p class="text-xs text-gray-500">Rapports créés cette semaine</p>
+                </div>
+            </div>
+            
+            <!-- Carte En Attente de Validation -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-clock text-orange-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">À Valider</p>
+                        <p class="text-2xl font-bold text-gray-800" id="pendingValidation">0</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-xs text-gray-500">Rapports non validés</p>
                 </div>
             </div>
             
@@ -235,7 +256,7 @@
             </div>
         </div>
 
-        <!-- NOUVELLE SECTION : Actions de Gestion -->
+        <!-- SECTION : Actions de Gestion -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 fade-in">
             <button onclick="openClientManagement()" class="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-6 rounded-xl shadow-lg hover:from-green-700 hover:to-emerald-800 transition-all duration-300">
                 <div class="flex items-center">
@@ -449,8 +470,15 @@
                         <button onclick="sendReportByEmail()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Envoyer par email">
                             <i class="fas fa-envelope"></i>
                         </button>
+                        <!-- Boutons pour le responsable - TOUJOURS VISIBLES -->
                         <button id="validateButton" onclick="validateReport()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Valider le rapport">
                             <i class="fas fa-check-circle"></i>
+                        </button>
+                        <button id="editButton" onclick="editReport()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Modifier le rapport">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button id="deleteButton" onclick="deleteReport()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Supprimer le rapport">
+                            <i class="fas fa-trash"></i>
                         </button>
                         <button onclick="closeDetailsModal()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Fermer">
                             <i class="fas fa-times"></i>
@@ -465,1152 +493,179 @@
         </div>
     </div>
 
+    <!-- Modal d'Édition de Rapport -->
+    <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto edit-modal-content">
+                <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-cyan-700 p-6 rounded-t-xl flex justify-between items-center no-print">
+                    <h3 class="text-2xl font-bold text-white">Modifier le Rapport</h3>
+                    <button onclick="closeEditModal()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Fermer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="editReportForm" class="p-6">
+                    <!-- Formulaire d'édition chargé dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gestion de Clients -->
+    <div id="clientModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div class="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-700 p-6 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-2xl font-bold text-white">Gestion des Clients</h3>
+                    <button onclick="closeClientModal()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Fermer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">Liste des Clients</h4>
+                            <button onclick="showAddClientForm()" class="bg-gradient-to-r from-green-600 to-emerald-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-emerald-800 transition">
+                                <i class="fas fa-plus mr-2"></i>Nouveau Client
+                            </button>
+                        </div>
+                        
+                        <div id="clientList" class="space-y-3">
+                            <!-- Liste des clients chargée dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div id="clientForm" class="hidden">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Ajouter/Modifier un Client</h4>
+                        <form id="clientFormElement" class="space-y-4">
+                            <input type="hidden" id="clientId">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom du Client *</label>
+                                <input type="text" id="clientName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                                <input type="text" id="clientAddress" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                                    <input type="tel" id="clientPhone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" id="clientEmail" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150">
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-4 pt-4">
+                                <button type="button" onclick="hideClientForm()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                                    Annuler
+                                </button>
+                                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition">
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gestion de Logiciels -->
+    <div id="softwareModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div class="sticky top-0 bg-gradient-to-r from-purple-600 to-violet-700 p-6 rounded-t-xl flex justify-between items-center">
+                    <h3 class="text-2xl font-bold text-white">Gestion des Logiciels</h3>
+                    <button onclick="closeSoftwareModal()" class="text-white hover:bg-white/20 p-2 rounded-lg transition" title="Fermer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-semibold text-gray-800">Liste des Logiciels</h4>
+                            <button onclick="showAddSoftwareForm()" class="bg-gradient-to-r from-purple-600 to-violet-700 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-violet-800 transition">
+                                <i class="fas fa-plus mr-2"></i>Nouveau Logiciel
+                            </button>
+                        </div>
+                        
+                        <div id="softwareList" class="space-y-3">
+                            <!-- Liste des logiciels chargée dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div id="softwareForm" class="hidden">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Ajouter/Modifier un Logiciel</h4>
+                        <form id="softwareFormElement" class="space-y-4">
+                            <input type="hidden" id="softwareId">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom du Logiciel *</label>
+                                <input type="text" id="softwareName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="softwareDescription" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-150 resize-vertical"></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Version</label>
+                                    <input type="text" id="softwareVersion" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                                    <input type="text" id="softwareCategory" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-150">
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-4 pt-4">
+                                <button type="button" onclick="hideSoftwareForm()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                                    Annuler
+                                </button>
+                                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-violet-700 text-white rounded-lg hover:from-purple-700 hover:to-violet-800 transition">
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="confirmation-modal">
+                <div class="text-center">
+                    <div class="mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-red-100 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2" id="confirmationTitle"></h3>
+                    <p class="text-gray-600 mb-6" id="confirmationMessage"></p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="confirmAction(false)" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                            Annuler
+                        </button>
+                        <button onclick="confirmAction(true)" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition" id="confirmButton">
+                            Confirmer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backdrop pour les modals -->
+    <div id="modalBackdrop" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
     <!-- Contenu caché pour l'impression du rapport -->
     <div id="printable-report" class="hidden">
         <!-- Le contenu du rapport sera inséré ici dynamiquement -->
     </div>
-
-    <script type="module">
-        // Import Firebase
-        import { auth, db } from './js/config/firebase.js';
-        import { 
-            onAuthStateChanged, 
-            signOut 
-        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { 
-            collection, 
-            onSnapshot, 
-            query, 
-            orderBy,
-            where,
-            getDocs,
-            doc,
-            getDoc,
-            updateDoc
-        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-        // Variables globales
-        let currentUser = null;
-        let allReports = [];
-        let filteredReports = [];
-        let weeklyChart = null;
-        let typeChart = null;
-        let agentsMap = new Map();
-        let unsubscribeReports = null;
-        let currentReportForPrint = null;
-        let currentReportId = null;
-
-        // Fonction pour obtenir le rôle de l'utilisateur depuis Firestore
-        async function getUserRole(userId) {
-            try {
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (userDoc.exists()) {
-                    return userDoc.data().role;
-                } else {
-                    console.warn('Document utilisateur non trouvé');
-                    return null;
-                }
-            } catch (error) {
-                console.error('Erreur lors de la récupération du rôle:', error);
-                return null;
-            }
-        }
-
-        // Fonction principale d'initialisation du dashboard
-        async function initializeDashboard() {
-            try {
-                console.log('Initialisation du dashboard responsable...');
-                
-                // Afficher le nom de l'utilisateur
-                document.getElementById('responsableName').textContent = currentUser.displayName || currentUser.email || 'Responsable IT';
-                
-                // Initialiser les graphiques
-                initializeCharts();
-                
-                // Charger les agents
-                await loadAgents();
-                
-                // Configurer l'écoute en temps réel des rapports
-                await setupRealTimeListener();
-                
-                // Afficher l'interface
-                document.getElementById('main-nav').classList.remove('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                
-                console.log('Dashboard responsable initialisé avec succès');
-                
-            } catch (error) {
-                console.error('Erreur initialisation dashboard:', error);
-                showErrorMessage('Erreur lors du chargement du tableau de bord');
-            }
-        }
-
-        // Gestion de l'authentification
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                console.log('Utilisateur connecté:', user.uid);
-                currentUser = user;
-                
-                try {
-                    // Vérifier le rôle de l'utilisateur
-                    const userRole = await getUserRole(user.uid);
-                    console.log('Rôle détecté:', userRole);
-                    
-                    // Autoriser l'accès pour les rôles responsable IT
-                    const allowedRoles = ['responsableIT', 'responsable', 'admin', 'manager', 'superviseur'];
-                    
-                    if (userRole && allowedRoles.includes(userRole)) {
-                        await initializeDashboard();
-                    } else {
-                        console.warn('Accès refusé. Rôle:', userRole);
-                        showErrorMessage('Accès non autorisé. Rôle insuffisant.');
-                        setTimeout(() => {
-                            window.location.href = 'unauthorized.html';
-                        }, 3000);
-                    }
-                } catch (error) {
-                    console.error('Erreur vérification rôle:', error);
-                    showErrorMessage('Erreur de vérification des permissions');
-                }
-                
-            } else {
-                console.log('Utilisateur non connecté, redirection...');
-                window.location.href = 'login.html';
-            }
-        });
-
-        // Écoute en temps réel des rapports
-        async function setupRealTimeListener() {
-            try {
-                const reportsRef = collection(db, 'reports');
-                const q = query(reportsRef, orderBy('createdAt', 'desc'));
-                
-                unsubscribeReports = onSnapshot(q, (querySnapshot) => {
-                    allReports = [];
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
-                        const reportDate = data.date ? new Date(data.date) : createdAt;
-                        
-                        // GESTION DYNAMIQUE DU TYPE D'INTERVENTION
-                        let typeIntervention = 'Non spécifié';
-                        
-                        if (data.typeIntervention) {
-                            typeIntervention = data.typeIntervention;
-                        } else if (data.interventionType) {
-                            typeIntervention = data.interventionType;
-                        } else if (data.type) {
-                            typeIntervention = data.type;
-                        }
-                        
-                        // Si c'est un tableau (cas où l'agent a sélectionné plusieurs types)
-                        if (Array.isArray(typeIntervention)) {
-                            typeIntervention = typeIntervention.join(', ');
-                        }
-                        
-                        allReports.push({
-                            id: doc.id,
-                            ...data,
-                            // Normalisation des champs
-                            agentName: data.agentName || 'Agent inconnu',
-                            clientName: data.raisonSociale || data.clientName || 'Client inconnu',
-                            site: data.siteGeographique || data.site || 'Non spécifié',
-                            type: typeIntervention,
-                            duration: data.dureeMission || data.duration || 'Non spécifié',
-                            status: data.status || 'Terminé',
-                            object: data.objetMission || data.object || 'Non spécifié',
-                            interlocutor: data.interlocuteur || data.interlocutor || 'Non spécifié',
-                            contact: data.contact || 'Non spécifié',
-                            date: reportDate.toISOString().split('T')[0],
-                            displayDate: reportDate.toLocaleDateString('fr-FR'),
-                            createdAt: createdAt,
-                            technicalDetails: data.technicalDetails || data.detailsTechniques || 'Aucun détail technique supplémentaire fourni.',
-                            // NOUVEAUX CHAMPS POUR LA VALIDATION
-                            isValidated: data.isValidated || false,
-                            validatedBy: data.validatedBy || null,
-                            validatedAt: data.validatedAt || null,
-                            canEdit: data.canEdit !== undefined ? data.canEdit : true
-                        });
-                    });
-                    
-                    filteredReports = [...allReports];
-                    updateFilters();
-                    displayReports();
-                    updateStatistics();
-                    updateCharts();
-                    
-                    document.getElementById('loadingRow').classList.add('hidden');
-                    hideLoadingState();
-                    
-                }, (error) => {
-                    console.error('Erreur écoute rapports:', error);
-                    showNotification('Erreur de connexion aux données', 'error');
-                    document.getElementById('loadingRow').classList.add('hidden');
-                    hideLoadingState();
-                });
-            } catch (error) {
-                console.error('Erreur configuration écouteur:', error);
-                document.getElementById('loadingRow').classList.add('hidden');
-                hideLoadingState();
-                throw error;
-            }
-        }
-
-        // Charger les agents
-        async function loadAgents() {
-            try {
-                const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('role', '==', 'agent'));
-                const agentsSnapshot = await getDocs(q);
-                
-                agentsMap.clear();
-                agentsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    agentsMap.set(doc.id, data.fullName || data.email);
-                });
-                
-                document.getElementById('activeAgents').textContent = agentsMap.size;
-            } catch (error) {
-                console.error('Erreur chargement agents:', error);
-            }
-        }
-
-        // Mettre à jour les filtres
-        function updateFilters() {
-            const agentFilter = document.getElementById('filterAgent');
-            const clientFilter = document.getElementById('filterClient');
-            const typeFilter = document.getElementById('filterType');
-
-            // Mettre à jour les agents avec recherche améliorée
-            agentFilter.innerHTML = '<option value="">Tous les agents</option>';
-            
-            // Créer un Set des noms d'agents uniques
-            const uniqueAgents = new Set();
-            allReports.forEach(report => {
-                if (report.agentName && report.agentName !== 'Agent inconnu') {
-                    uniqueAgents.add(report.agentName);
-                }
-            });
-            
-            // Ajouter les agents au filtre
-            Array.from(uniqueAgents).sort().forEach(agentName => {
-                const option = new Option(agentName, agentName);
-                agentFilter.add(option);
-            });
-
-            // Mettre à jour les clients avec recherche améliorée
-            const uniqueClients = [...new Set(allReports.map(r => r.clientName).filter(name => name && name !== 'Client inconnu'))];
-            clientFilter.innerHTML = '<option value="">Tous les clients</option>';
-            uniqueClients.sort().forEach(client => {
-                const option = new Option(client, client);
-                clientFilter.add(option);
-            });
-
-            // Mettre à jour les types avec extraction améliorée
-            const allTypes = new Set();
-            allReports.forEach(report => {
-                if (report.type && typeof report.type === 'string') {
-                    if (report.type.includes(',')) {
-                        // Séparer les types multiples
-                        const types = report.type.split(',').map(t => t.trim());
-                        types.forEach(type => allTypes.add(type));
-                    } else {
-                        allTypes.add(report.type);
-                    }
-                }
-            });
-            
-            typeFilter.innerHTML = '<option value="">Tous les types</option>';
-            Array.from(allTypes).filter(Boolean).sort().forEach(type => {
-                const option = new Option(type, type);
-                typeFilter.add(option);
-            });
-
-            // Mettre les dates par défaut (30 derniers jours)
-            const defaultEndDate = new Date().toISOString().split('T')[0];
-            const defaultStartDate = new Date();
-            defaultStartDate.setDate(defaultStartDate.getDate() - 30);
-            
-            if (!document.getElementById('filterDateStart').value) {
-                document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
-            }
-            if (!document.getElementById('filterDateEnd').value) {
-                document.getElementById('filterDateEnd').value = defaultEndDate;
-            }
-        }
-
-        // Afficher les rapports
-        function displayReports() {
-            const tableBody = document.getElementById('reportsTableBody');
-            const noReportsDiv = document.getElementById('noReports');
-            const tableCount = document.getElementById('tableCount');
-            
-            tableBody.innerHTML = '';
-            
-            if (filteredReports.length === 0) {
-                noReportsDiv.classList.remove('hidden');
-                tableCount.textContent = '0 rapports';
-                return;
-            }
-            
-            noReportsDiv.classList.add('hidden');
-            tableCount.textContent = `${filteredReports.length} rapport${filteredReports.length > 1 ? 's' : ''}`;
-
-            filteredReports.forEach(report => {
-                // Classes CSS pour le statut de validation
-                let statusClass = '';
-                let statusText = report.status;
-                
-                if (report.isValidated) {
-                    statusClass = 'bg-green-100 text-green-800 status-validated';
-                    statusText = 'Validé';
-                } else {
-                    statusClass = report.status === 'Terminé' ? 
-                        'bg-orange-100 text-orange-800 status-pending' : 
-                        report.status === 'En cours' ?
-                        'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800';
-                }
-                
-                // Gestion des types multiples
-                let typeDisplay = report.type || 'Non spécifié';
-                let typeBadges = '';
-                
-                if (typeof typeDisplay === 'string' && typeDisplay.includes(',')) {
-                    // Si plusieurs types, créer des badges séparés
-                    const types = typeDisplay.split(',').map(t => t.trim());
-                    typeBadges = types.map(type => 
-                        `<span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 mr-1 mb-1">${type}</span>`
-                    ).join('');
-                } else {
-                    // Type unique
-                    typeBadges = `<span class="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800">${typeDisplay}</span>`;
-                }
-                
-                const row = tableBody.insertRow();
-                row.className = 'hover:bg-gray-50 transition-colors duration-150';
-                
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-user text-indigo-600 text-sm"></i>
-                            </div>
-                            <span class="text-sm font-medium text-gray-900">${report.agentName}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${report.displayDate}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${report.clientName}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${report.site}</td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-wrap gap-1 max-w-[200px]">
-                            ${typeBadges}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${report.duration}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                            ${statusText}
-                            ${report.isValidated ? '<span class="validation-badge bg-white text-green-800 ml-1"><i class="fas fa-check"></i></span>' : ''}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium no-print">
-                        <button onclick="viewReportDetails('${report.id}')" class="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 mr-2" title="Voir les détails">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        ${!report.isValidated ? `
-                        <button onclick="validateReportFromTable('${report.id}')" class="text-green-600 hover:text-green-900 transition-colors duration-200" title="Valider le rapport">
-                            <i class="fas fa-check-circle"></i>
-                        </button>
-                        ` : ''}
-                    </td>
-                `;
-            });
-        }
-
-        // Mettre à jour les statistiques
-        function updateStatistics() {
-            document.getElementById('totalReports').textContent = filteredReports.length;
-            document.getElementById('totalInterventions').textContent = filteredReports.length;
-
-            // Rapports de la semaine
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            const weekReportsCount = filteredReports.filter(report => {
-                const reportDate = new Date(report.date);
-                return reportDate >= oneWeekAgo;
-            }).length;
-            document.getElementById('weekReports').textContent = weekReportsCount;
-            
-            // Interventions sur site
-            const onsiteCount = filteredReports.filter(report => 
-                report.type && (report.type === 'sur_site' || report.type.toLowerCase().includes('site'))
-            ).length;
-            document.getElementById('onsiteInterventions').textContent = onsiteCount;
-
-            // Interventions en ligne
-            const onlineCount = filteredReports.filter(report => {
-                if (!report.type) return false;
-                const type = report.type.toLowerCase();
-                return type.includes('en ligne') || type.includes('online') || type.includes('distanciel') || 
-                       type.includes('remote') || type.includes('à distance') || type.includes('téléphonique');
-            }).length;
-            document.getElementById('onlineInterventions').textContent = onlineCount;
-
-            updateFilterInfo();
-        }
-
-        // Mettre à jour les informations du filtre
-        function updateFilterInfo() {
-            const filterInfo = document.getElementById('filterInfo');
-            const activeFilters = [];
-            
-            if (document.getElementById('filterAgent').value) {
-                activeFilters.push('agent');
-            }
-            if (document.getElementById('filterClient').value) {
-                activeFilters.push('client');
-            }
-            if (document.getElementById('filterType').value) {
-                activeFilters.push('type');
-            }
-            if (document.getElementById('filterDateStart').value || document.getElementById('filterDateEnd').value) {
-                activeFilters.push('date');
-            }
-            
-            if (activeFilters.length === 0) {
-                filterInfo.textContent = 'Aucun filtre appliqué';
-            } else {
-                filterInfo.textContent = `${activeFilters.length} filtre(s) appliqué(s) : ${activeFilters.join(', ')}`;
-            }
-        }
-
-        // NOUVELLES FONCTIONS POUR LA GESTION
-
-        // Ouvrir la page de gestion des clients
-        window.openClientManagement = function() {
-            window.open('client-management.html', 'GestionClients', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-        }
-
-        // Ouvrir la page de gestion des logiciels
-        window.openSoftwareManagement = function() {
-            window.open('software-management.html', 'GestionLogiciels', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-        }
-
-        // Fonction pour rafraîchir les données depuis les pages externes
-        window.refreshLists = async function() {
-            showNotification('Mise à jour des listes...', 'info');
-            await loadAgents();
-            await updateFilters();
-            showNotification('Listes mises à jour avec succès', 'success');
-        }
-
-        // Voir tous les rapports
-        window.viewAllReports = function() {
-            // Réinitialiser les filtres pour tout afficher
-            resetFilters();
-            showNotification('Affichage de tous les rapports', 'info');
-        }
-
-        // Exporter toutes les données
-        window.exportAllData = function() {
-            if (allReports.length === 0) {
-                showNotification('Aucune donnée à exporter', 'warning');
-                return;
-            }
-            
-            // Préparer les données pour l'export
-            const exportData = {
-                rapports: allReports,
-                statistiques: {
-                    totalRapports: allReports.length,
-                    rapportsCetteSemaine: allReports.filter(report => {
-                        const oneWeekAgo = new Date();
-                        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                        const reportDate = new Date(report.date);
-                        return reportDate >= oneWeekAgo;
-                    }).length,
-                    agentsActifs: agentsMap.size,
-                    interventionsSurSite: allReports.filter(report => 
-                        report.type && (report.type === 'sur_site' || report.type.toLowerCase().includes('site'))
-                    ).length,
-                    interventionsEnLigne: allReports.filter(report => {
-                        if (!report.type) return false;
-                        const type = report.type.toLowerCase();
-                        return type.includes('en ligne') || type.includes('online') || type.includes('distanciel');
-                    }).length
-                },
-                dateExport: new Date().toISOString(),
-                exportePar: currentUser.displayName || currentUser.email
-            };
-            
-            // Créer et télécharger le fichier JSON
-            const dataStr = JSON.stringify(exportData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `export-inovareport-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showNotification(`Export de ${allReports.length} rapports réussi`, 'success');
-        }
-
-        // Fonction pour valider plusieurs rapports en lot
-        window.batchValidateReports = function() {
-            const unvalidatedReports = allReports.filter(report => !report.isValidated);
-            
-            if (unvalidatedReports.length === 0) {
-                showNotification('Aucun rapport à valider', 'info');
-                return;
-            }
-            
-            if (confirm(`Voulez-vous valider ${unvalidatedReports.length} rapport(s) non validé(s) ?`)) {
-                showNotification(`Validation de ${unvalidatedReports.length} rapport(s) en cours...`, 'info');
-                
-                // Simuler la validation (à adapter avec vos appels Firebase)
-                unvalidatedReports.forEach(async (report, index) => {
-                    try {
-                        const reportRef = doc(db, 'reports', report.id);
-                        await updateDoc(reportRef, {
-                            isValidated: true,
-                            validatedBy: currentUser.uid,
-                            validatedAt: new Date(),
-                            canEdit: false
-                        });
-                        
-                        if (index === unvalidatedReports.length - 1) {
-                            showNotification(`Tous les rapports ont été validés avec succès`, 'success');
-                        }
-                    } catch (error) {
-                        console.error(`Erreur validation rapport ${report.id}:`, error);
-                    }
-                });
-            }
-        }
-
-        // Valider un rapport depuis le tableau
-        window.validateReportFromTable = async function(reportId) {
-            if (confirm('Êtes-vous sûr de vouloir valider ce rapport ? L\'agent ne pourra plus le modifier.')) {
-                await validateReportInDatabase(reportId);
-            }
-        }
-
-        // Valider un rapport (depuis la modal)
-        window.validateReport = async function() {
-            if (currentReportId && confirm('Êtes-vous sûr de vouloir valider ce rapport ? L\'agent ne pourra plus le modifier.')) {
-                await validateReportInDatabase(currentReportId);
-                closeDetailsModal();
-            }
-        }
-
-        // Validation dans la base de données
-        async function validateReportInDatabase(reportId) {
-            try {
-                const reportRef = doc(db, 'reports', reportId);
-                await updateDoc(reportRef, {
-                    isValidated: true,
-                    validatedBy: currentUser.uid,
-                    validatedAt: new Date(),
-                    canEdit: false
-                });
-                
-                showNotification('Rapport validé avec succès', 'success');
-                
-            } catch (error) {
-                console.error('Erreur validation rapport:', error);
-                showNotification('Erreur lors de la validation du rapport', 'error');
-            }
-        }
-
-        // Fonction viewReportDetails
-        window.viewReportDetails = function(reportId) {
-            const report = allReports.find(r => r.id === reportId);
-            if (!report) return;
-
-            currentReportForPrint = report;
-            currentReportId = reportId;
-            
-            const detailsDiv = document.getElementById('reportDetails');
-            const validateButton = document.getElementById('validateButton');
-            
-            // Masquer le bouton de validation si le rapport est déjà validé
-            if (report.isValidated) {
-                validateButton.style.display = 'none';
-            } else {
-                validateButton.style.display = 'block';
-            }
-            
-            // Formatage des types pour l'affichage
-            let typeDisplay = report.type || 'Non spécifié';
-            let typeBadges = '';
-            
-            if (typeof typeDisplay === 'string' && typeDisplay.includes(',')) {
-                const types = typeDisplay.split(',').map(t => t.trim());
-                typeBadges = types.map(type => 
-                    `<span class="inline-block px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 text-indigo-800 mr-2 mb-2">${type}</span>`
-                ).join('');
-            } else {
-                typeBadges = `<span class="px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 text-indigo-800">${typeDisplay}</span>`;
-            }
-            
-            detailsDiv.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="space-y-4">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="font-bold text-blue-800 mb-2">Informations Agent</h4>
-                            <p><strong>Nom:</strong> ${report.agentName}</p>
-                            <p><strong>Date intervention:</strong> ${report.displayDate}</p>
-                            <p><strong>Durée:</strong> ${report.duration}</p>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="font-bold text-green-800 mb-2">Informations Client</h4>
-                            <p><strong>Client:</strong> ${report.clientName}</p>
-                            <p><strong>Site:</strong> ${report.site}</p>
-                            <p><strong>Interlocuteur:</strong> ${report.interlocutor}</p>
-                            <p><strong>Contact:</strong> ${report.contact}</p>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="bg-purple-50 p-4 rounded-lg">
-                            <h4 class="font-bold text-purple-800 mb-2">Détails Intervention</h4>
-                            <div class="mb-3">
-                                <strong>Type(s):</strong>
-                                <div class="flex flex-wrap mt-2">
-                                    ${typeBadges}
-                                </div>
-                            </div>
-                            <p><strong>Statut:</strong> ${report.status}</p>
-                            <p><strong>Créé le:</strong> ${report.createdAt ? report.createdAt.toLocaleString('fr-FR') : 'N/A'}</p>
-                            <p><strong>Validation:</strong> 
-                                ${report.isValidated ? 
-                                    `<span class="text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i>Validé</span>` : 
-                                    `<span class="text-orange-600 font-semibold"><i class="fas fa-clock mr-1"></i>En attente</span>`
-                                }
-                            </p>
-                            ${report.validatedBy && report.validatedAt ? `
-                            <p><strong>Validé par:</strong> ${report.validatedBy}</p>
-                            <p><strong>Validé le:</strong> ${report.validatedAt.toDate().toLocaleString('fr-FR')}</p>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h4 class="font-bold text-gray-800 mb-2">Objet de la mission</h4>
-                    <p class="whitespace-pre-wrap">${report.object}</p>
-                </div>
-                ${report.technicalDetails && report.technicalDetails !== 'Aucun détail technique supplémentaire fourni.' ? `
-                <div class="bg-orange-50 p-4 rounded-lg mt-4">
-                    <h4 class="font-bold text-orange-800 mb-2">Détails Techniques</h4>
-                    <p class="whitespace-pre-wrap">${report.technicalDetails}</p>
-                </div>
-                ` : ''}
-            `;
-            document.getElementById('detailsModal').classList.remove('hidden');
-        }
-
-        // Initialiser les graphiques
-        function initializeCharts() {
-            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-            weeklyChart = new Chart(weeklyCtx, {
-                type: 'line',
-                data: { 
-                    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'], 
-                    datasets: [{
-                        label: 'Rapports créés',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#4F46E5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#4F46E5',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }] 
-                },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            callbacks: {
-                                label: function(context) {
-                                    return `Rapports: ${context.parsed.y}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            ticks: {
-                                stepSize: 1,
-                                precision: 0
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    } 
-                }
-            });
-            
-            const typeCtx = document.getElementById('typeChart').getContext('2d');
-            typeChart = new Chart(typeCtx, {
-                type: 'doughnut',
-                data: { 
-                    labels: ['Chargement...'], 
-                    datasets: [{
-                        data: [1],
-                        backgroundColor: [
-                            '#4F46E5', // Indigo
-                            '#EF4444', // Rouge
-                            '#F59E0B', // Orange
-                            '#10B981', // Vert
-                            '#8B5CF6'  // Violet
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#ffffff',
-                        hoverOffset: 8
-                    }] 
-                },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '60%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Mettre à jour les graphiques
-        function updateCharts() {
-            if (!weeklyChart || !typeChart) return;
-
-            try {
-                // Mettre à jour le graphique hebdomadaire
-                const weeklyData = calculateWeeklyData();
-                weeklyChart.data.datasets[0].data = weeklyData;
-                weeklyChart.update('none');
-
-                // Mettre à jour le graphique par type
-                const typeData = calculateTypeData();
-                typeChart.data.labels = typeData.labels;
-                typeChart.data.datasets[0].data = typeData.data;
-                typeChart.update('none');
-
-            } catch (error) {
-                console.error('Erreur mise à jour graphiques:', error);
-            }
-        }
-
-        // Calculer les données hebdomadaires réelles
-        function calculateWeeklyData() {
-            const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-            const weeklyCounts = [0, 0, 0, 0, 0, 0, 0];
-            
-            const today = new Date();
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lundi de cette semaine
-            startOfWeek.setHours(0, 0, 0, 0);
-
-            filteredReports.forEach(report => {
-                const reportDate = new Date(report.date);
-                reportDate.setHours(0, 0, 0, 0);
-                
-                if (reportDate >= startOfWeek) {
-                    const dayIndex = reportDate.getDay();
-                    // Convertir dimanche (0) à 6, lundi (1) à 0, etc.
-                    const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1;
-                    if (adjustedIndex >= 0 && adjustedIndex < 7) {
-                        weeklyCounts[adjustedIndex]++;
-                    }
-                }
-            });
-
-            return weeklyCounts;
-        }
-
-        // Calculer les données par type
-        function calculateTypeData() {
-            const typeCounts = {};
-            
-            filteredReports.forEach(report => {
-                let types = [];
-                
-                // Gérer les types multiples séparés par des virgules
-                if (report.type && typeof report.type === 'string') {
-                    // Séparer les types s'ils sont multiples
-                    types = report.type.split(',').map(t => t.trim()).filter(t => t);
-                } else if (Array.isArray(report.type)) {
-                    // Si c'est déjà un tableau
-                    types = report.type;
-                } else {
-                    // Type simple
-                    types = [report.type || 'Non spécifié'];
-                }
-                
-                // Compter chaque type individuellement
-                types.forEach(type => {
-                    typeCounts[type] = (typeCounts[type] || 0) + 1;
-                });
-            });
-
-            // Trier par nombre décroissant et limiter aux 5 principaux types
-            const sortedTypes = Object.entries(typeCounts)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 5)
-                .reduce((acc, [key, value]) => {
-                    acc.labels.push(key);
-                    acc.data.push(value);
-                    return acc;
-                }, { labels: [], data: [] });
-
-            // Ajouter "Autres" si nécessaire
-            const totalShown = sortedTypes.data.reduce((sum, val) => sum + val, 0);
-            const totalAll = Object.values(typeCounts).reduce((sum, val) => sum + val, 0);
-            
-            if (totalShown < totalAll) {
-                sortedTypes.labels.push('Autres');
-                sortedTypes.data.push(totalAll - totalShown);
-            }
-
-            return sortedTypes;
-        }
-
-        // Fonction pour préparer le contenu imprimable du rapport
-        function preparePrintableReport(report) {
-            const printableDiv = document.getElementById('printable-report');
-            
-            // Formatage des types pour l'impression
-            let typeDisplay = report.type || 'Non spécifié';
-            let typeList = '';
-            
-            if (typeof typeDisplay === 'string' && typeDisplay.includes(',')) {
-                const types = typeDisplay.split(',').map(t => t.trim());
-                typeList = types.map(type => `<li>${type}</li>`).join('');
-                typeList = `<ul class="list-disc list-inside">${typeList}</ul>`;
-            } else {
-                typeList = typeDisplay;
-            }
-            
-            printableDiv.innerHTML = `
-                <div class="print-header">
-                    <h1 class="text-2xl font-bold text-center mb-2">Rapport d'Intervention</h1>
-                    <p class="text-center text-gray-600">InovaReport - Système de Gestion des Interventions</p>
-                    <p class="text-center text-gray-500 text-sm">Généré le ${new Date().toLocaleDateString('fr-FR')}</p>
-                </div>
-                
-                <div class="print-section">
-                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Informations Générales</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p><strong>Numéro de rapport:</strong> ${report.id}</p>
-                            <p><strong>Date de l'intervention:</strong> ${report.displayDate}</p>
-                            <p><strong>Type d'intervention:</strong> ${typeList}</p>
-                        </div>
-                        <div>
-                            <p><strong>Statut:</strong> ${report.isValidated ? 'Validé' : report.status}</p>
-                            <p><strong>Durée:</strong> ${report.duration}</p>
-                            <p><strong>Créé le:</strong> ${report.createdAt ? report.createdAt.toLocaleString('fr-FR') : 'N/A'}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="print-section">
-                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Agent d'Intervention</h2>
-                    <p><strong>Nom:</strong> ${report.agentName}</p>
-                </div>
-                
-                <div class="print-section">
-                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Informations Client</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p><strong>Client:</strong> ${report.clientName}</p>
-                            <p><strong>Site:</strong> ${report.site}</p>
-                        </div>
-                        <div>
-                            <p><strong>Interlocuteur:</strong> ${report.interlocutor}</p>
-                            <p><strong>Contact:</strong> ${report.contact}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="print-section">
-                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Objet de la Mission</h2>
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <p class="whitespace-pre-wrap">${report.object}</p>
-                    </div>
-                </div>
-                
-                ${report.technicalDetails && report.technicalDetails !== 'Aucun détail technique supplémentaire fourni.' ? `
-                <div class="print-section">
-                    <h2 class="text-xl font-bold mb-4 text-indigo-700">Détails Techniques</h2>
-                    <div class="bg-gray-50 p-4 rounded border">
-                        <p class="whitespace-pre-wrap">${report.technicalDetails}</p>
-                    </div>
-                </div>
-                ` : ''}
-                
-                <div class="print-signature">
-                    <div class="grid grid-cols-2 gap-8 mt-8">
-                        <div>
-                            <p class="mb-12">Signature de l'agent</p>
-                            <p>Nom: ${report.agentName}</p>
-                            <p>Date: ________________</p>
-                        </div>
-                        <div>
-                            <p class="mb-12">Signature du client</p>
-                            <p>Nom: ${report.interlocutor}</p>
-                            <p>Date: ________________</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-8 text-center text-sm text-gray-500">
-                    <p>Document généré automatiquement par InovaReport</p>
-                    <p>Pour toute question, contactez le support technique</p>
-                </div>
-            `;
-            
-            printableDiv.classList.remove('hidden');
-        }
-
-        // Fonction applyFilters
-        window.applyFilters = function() {
-            const agent = document.getElementById('filterAgent').value;
-            const client = document.getElementById('filterClient').value;
-            const type = document.getElementById('filterType').value;
-            const dateStart = document.getElementById('filterDateStart').value;
-            const dateEnd = document.getElementById('filterDateEnd').value;
-            
-            filteredReports = allReports.filter(report => {
-                // Filtre par agent (recherche par ID utilisateur ou nom)
-                let isAgentMatch = !agent;
-                if (agent) {
-                    // Recherche par ID utilisateur
-                    if (report.userId === agent) {
-                        isAgentMatch = true;
-                    } 
-                    // Recherche par nom d'agent (fallback)
-                    else if (report.agentName && report.agentName.toLowerCase().includes(agent.toLowerCase())) {
-                        isAgentMatch = true;
-                    }
-                }
-                
-                // Filtre par client (recherche textuelle)
-                let isClientMatch = !client;
-                if (client && report.clientName) {
-                    isClientMatch = report.clientName.toLowerCase().includes(client.toLowerCase());
-                }
-                
-                // Filtre par type d'intervention (recherche dans les types multiples)
-                let isTypeMatch = !type;
-                if (type && report.type) {
-                    const reportTypes = typeof report.type === 'string' 
-                        ? report.type.split(',').map(t => t.trim().toLowerCase())
-                        : [String(report.type).toLowerCase()];
-                    
-                    const searchType = type.toLowerCase();
-                    isTypeMatch = reportTypes.some(t => t.includes(searchType));
-                }
-                
-                // Filtre par date
-                let isDateMatch = true;
-                if (dateStart && report.date < dateStart) isDateMatch = false;
-                if (dateEnd && report.date > dateEnd) isDateMatch = false;
-
-                return isAgentMatch && isClientMatch && isTypeMatch && isDateMatch;
-            });
-
-            displayReports();
-            updateStatistics();
-            updateCharts();
-        }
-
-        window.resetFilters = function() {
-            document.getElementById('filterAgent').value = '';
-            document.getElementById('filterClient').value = '';
-            document.getElementById('filterType').value = '';
-            
-            // Réinitialiser aux 30 derniers jours
-            const defaultEndDate = new Date().toISOString().split('T')[0];
-            const defaultStartDate = new Date();
-            defaultStartDate.setDate(defaultStartDate.getDate() - 30);
-            
-            document.getElementById('filterDateStart').value = defaultStartDate.toISOString().split('T')[0];
-            document.getElementById('filterDateEnd').value = defaultEndDate;
-            
-            applyFilters();
-        }
-
-        window.refreshData = async function() {
-            showNotification('Actualisation des données...', 'info');
-            setTimeout(() => {
-                showNotification('Données à jour', 'success');
-            }, 1000);
-        }
-
-        window.refreshCharts = function() {
-            updateCharts();
-            showNotification('Graphiques actualisés', 'success');
-        }
-
-        window.closeDetailsModal = function() {
-            document.getElementById('detailsModal').classList.add('hidden');
-        }
-
-        window.printReport = function() {
-            if (currentReportForPrint) {
-                preparePrintableReport(currentReportForPrint);
-                setTimeout(() => {
-                    window.print();
-                    setTimeout(() => {
-                        document.getElementById('printable-report').classList.add('hidden');
-                    }, 500);
-                }, 500);
-            } else {
-                showNotification('Aucun rapport sélectionné pour l\'impression', 'error');
-            }
-        }
-
-        window.logout = async function() {
-            if (confirm('Êtes-vous sûr de vouloir vous déconnecter?')) {
-                try {
-                    if (unsubscribeReports) {
-                        unsubscribeReports();
-                    }
-                    await signOut(auth);
-                } catch (error) {
-                    console.error('Erreur déconnexion:', error);
-                    showNotification('Erreur lors de la déconnexion', 'error');
-                }
-            }
-        }
-
-        // Fonctions d'exportation
-        window.exportToExcel = function() {
-            showNotification('Fonction d\'export Excel à implémenter', 'info');
-        }
-
-        window.exportToPDF = function() {
-            showNotification('Fonction d\'export PDF à implémenter', 'info');
-        }
-
-        window.generateStats = function() {
-            showNotification('Fonction de statistiques détaillées à implémenter', 'info');
-        }
-
-        window.sendReportByEmail = function() {
-            showNotification('Fonction d\'envoi par email à implémenter', 'info');
-        }
-
-        // Masquer le loading state global une fois le chargement terminé
-        function hideLoadingState() {
-            const loadingElement = document.getElementById('loading-state');
-            if (loadingElement) {
-                loadingElement.style.display = 'none';
-            }
-        }
-
-        // Afficher une notification
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 ${
-                type === 'success' ? 'bg-green-500' : 
-                type === 'error' ? 'bg-red-500' : 
-                'bg-blue-500'
-            } text-white`;
-            
-            let icon = 'fa-info-circle';
-            if (type === 'success') icon = 'fa-check-circle';
-            if (type === 'error') icon = 'fa-exclamation-circle';
-            
-            notification.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <i class="fas ${icon}"></i>
-                    <span class="font-medium">${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Afficher un message d'erreur
-        function showErrorMessage(message) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <span>${message}</span>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-600 hover:text-red-800">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            
-            document.body.insertBefore(errorDiv, document.body.firstChild);
-            
-            setTimeout(() => {
-                if (errorDiv.parentElement) {
-                    errorDiv.remove();
-                }
-            }, 5000);
-        }
-
-        // Masquer le loading state quand la page est chargée
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(hideLoadingState, 1000);
-        });
-    </script>
+    
+    <script src="js/responsableit.js" type="module" ></script>
 </body>
 </html>
